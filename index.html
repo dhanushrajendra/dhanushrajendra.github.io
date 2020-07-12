@@ -13,12 +13,6 @@
     <div class="gameDiv " :class="{bubbleReached: bubbleReached}">
         <h2>Player 1: {{ score }}</h2>
         <img src="./assets/player1.svg" :style="player"  alt="player1svg" class="player" id="player1">
-        
-        <!-- Loop throught each bullet             
-            1. Add
-            2. Remove
-            3. Update 
-        -->
         <template v-for="bullet in bullets">
             <div class="bullet" 
             :style="[{left: bullet.x + 'px'},
