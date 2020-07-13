@@ -3,73 +3,67 @@ const burstSound = new Audio('./sounds/burst.mp3');
 const powerDown = new Audio('./sounds/powerDown.mp3');
 
 function random(min, max) {
-    return Math.floor(Math.random() * (max - min + 1) ) + min;
-  }
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
 
 const app = new Vue({
     el: '.gameDiv',
-    data(){
-      return {
-          score: 0,
-          x: 200,
-          y: 200,
-          angle: 0,
-          bullets: [],
-          bubbles: [],
-          bubbleReached: false
-      }  
+    data() {
+        return {
+            score: 0,
+            x: 200,
+            y: 200,
+            angle: 0,
+            bullets: [],
+            bubbles: [],
+            bubbleReached: false,
+            muted: false,
+        }
     },
     created() {
-       
+
         this.updateBullet();
         this.updateBubble();
-        
+
     },
     methods: {
 
         // Handling moving of our player (W, A, S, D) and (↑,  ←,  ↓,  →) =====> Respectively Up, Left, Down and Right
-        move(event)
-        {
+        move(event) {
             let amount = 10;
-            if((event.key == 'a' || event.key == 'ArrowLeft') && this.x > 0)
-            {
+            if ((event.key == 'a' || event.key == 'ArrowLeft') && this.x > 0) {
                 this.x -= amount;
             }
-            else if((event.key == 'd' || event.key == 'ArrowRight') && this.x < 1000 - 100)         // -100 width of the player
+            else if ((event.key == 'd' || event.key == 'ArrowRight') && this.x < 1000 - 100)         // -100 width of the player
             {
                 this.x += amount;
             }
-            else if((event.key == 'w' || event.key == 'ArrowUp') && this.y > 0)
-            {
+            else if ((event.key == 'w' || event.key == 'ArrowUp') && this.y > 0) {
                 this.y -= amount;
             }
-            else if((event.key == 's' || event.key == 'ArrowDown') && this.y < 600 - 100)           // -100 width of the player
+            else if ((event.key == 's' || event.key == 'ArrowDown') && this.y < 600 - 100)           // -100 width of the player
             {
                 this.y += amount;
             }
-            else if(event.key == " ")
-            {
+            else if (event.key == " ") {
                 this.fire();
             }
         },
 
 
         // Handling mouse scroll to rotate player
-        rotate(event)
-        {
-            if(event.deltaY > 0)            // Rotate player clockwise
+        rotate(event) {
+            if (event.deltaY > 0)            // Rotate player clockwise
             {
                 this.angle += 10;
-                if(this.angle > 360)
-                {
+                if (this.angle > 360) {
                     this.angle = 0;
                 }
             }
             else                            // Rotate anti-clockwise
             {
                 this.angle -= 10;
-                if(this.angle < 0)
-                {
+                if (this.angle < 0) {
                     this.angle = 360;
                 }
             }
@@ -77,38 +71,36 @@ const app = new Vue({
 
 
         // This function will call when pressing spacebar this will push a new object in bullets array
-        fire()
-        {
+        fire() {
             this.bullets.push({
-                x: this.x + (100/2),            // 100 is height of player
-                y: this.y + (100/2),
-                angle: this.angle           
+                x: this.x + (100 / 2),            // 100 is height of player
+                y: this.y + (100 / 2),
+                angle: this.angle
             });
-            fireSound.play();
+            if (!this.muted) {
+                fireSound.play();
+            }
         },
 
 
         // It removes the bullets which are outside the playground
-        outOfScreen(i)
-        {
-            if (this.bullets[i].x < 0       ||
-                this.bullets[i].y < 0       ||
-                this.bullets[i].x > 1000    ||
-                this.bullets[i].y > 600)        
-            {
+        outOfScreen(i) {
+            if (this.bullets[i].x < 0 ||
+                this.bullets[i].y < 0 ||
+                this.bullets[i].x > 1000 ||
+                this.bullets[i].y > 600) {
                 this.bullets.splice(i, 1);
             }
         },
 
-        updateBullet()
-        {
+        updateBullet() {
             /*
             --------------------------------This function will run for each bullet-------------------------------------
             
                 1.  If bullet goes outside the Playground it will remove that bullet
                 2.  Update Bullet position
             */
-            setInterval(()=>{
+            setInterval(() => {
                 const distance = 30;
                 this.bullets.forEach((bullet, i) => {
                     this.outOfScreen(i);
@@ -117,53 +109,53 @@ const app = new Vue({
                 });
                 this.checkCollusion();
             }, 30)
-        }, 
+        },
 
 
         // checking if any bullet is overlaping any bubble
-        checkCollusion()
-        {
-            this.bullets.forEach((bullet)=>{
-                this.bubbles.forEach((bubble, i)=>{
-                    if(
-                        Math.abs(bullet.x - bubble.x) < (25 + 7.5 ) &&       // 25 is radious of bubble
+        checkCollusion() {
+            this.bullets.forEach((bullet) => {
+                this.bubbles.forEach((bubble, i) => {
+                    if (
+                        Math.abs(bullet.x - bubble.x) < (25 + 7.5) &&       // 25 is radious of bubble
                         Math.abs(bullet.y - bubble.y) < (25 + 7.5)           // 7.5 is radious of bullet
-                    ){
+                    ) {
                         this.bubbles.splice(i, 1);
                         this.score++;
-                        burstSound.play();
+                        if (!this.muted) {
+                            burstSound.play();
+                        }
                     }
                 })
             });
         },
 
         // When a bubble reached at the top of gameDiv
-        bubbleReachTop()
-        {
-            this.bubbles.forEach((bubble, i)=>{
-                if(bubble.y < 0)
-                {
+        bubbleReachTop() {
+            this.bubbles.forEach((bubble, i) => {
+                if (bubble.y < 0) {
                     console.log('ho gya');
                     this.bubbles.splice(i, 1);
                     this.bubbleReached = true;
-                    powerDown.play();
-                    setTimeout(()=>{
+                    if (!this.muted) {
+                        powerDown.play();
+                    }
+                    setTimeout(() => {
                         this.bubbleReached = false;
                     }, 1000);
                 }
             });
         },
 
-        updateBubble()
-        {
+        updateBubble() {
             const n = 50 / 2                // Height of bubble
-            setInterval(()=>{
+            setInterval(() => {
                 this.bubbles.forEach(bubble => {
                     bubble.y -= 2;
                 });
                 this.bubbleReachTop();
             }, 30)
-            setInterval(()=>{               // Spawn bubble every 2 seconds
+            setInterval(() => {               // Spawn bubble every 2 seconds
                 this.bubbles.push({
                     x: random(n, 1000 - n),
                     y: 600 + n,
@@ -171,13 +163,12 @@ const app = new Vue({
                 })
             }, 2000)
         }
-        
+
     },
-    computed: 
+    computed:
     {
         // For position and rotaion of the player
-        player()
-        {
+        player() {
             return {
                 left: this.x + 'px',
                 top: this.y + 'px',
