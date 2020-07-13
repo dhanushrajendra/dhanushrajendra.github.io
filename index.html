@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <title>Bubble Game</title>
     <meta charset="UTF-8">
@@ -9,23 +10,23 @@
     <link rel="shortcut icon" href="./assets/player1.svg" type="image/x-icon">
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <div class="gameDiv " :class="{bubbleReached: bubbleReached}">
         <h2>Player 1: {{ score }}</h2>
-        <img src="./assets/player1.svg" :style="player"  alt="player1svg" class="player" id="player1">
+        <img src="./assets/player1.svg" :style="player" alt="player1svg" class="player" id="player1">
         <template v-for="bullet in bullets">
-            <div class="bullet" 
-            :style="[{left: bullet.x + 'px'},
+            <div class="bullet" :style="[{left: bullet.x + 'px'},
                     {top: bullet.y + 'px'}]"></div>
         </template>
         <template v-for="(bubble, color) in bubbles">
             <img :style="[{left: bubble.x + 'px'},
-            {top: bubble.y + 'px'}]"   
-
-
-            :src="`./assets/bubble_${bubble.color}.svg`"
-            alt="bubblesvg" class="bubble">
+            {top: bubble.y + 'px'}]" :src="`./assets/bubble_${bubble.color}.svg`" alt="bubblesvg" class="bubble">
         </template>
+        <div class="audio" @click="muted = !muted">
+            <img v-if="muted" src="./assets/mute.svg" alt="">
+            <img v-if="!muted" src="./assets/unmute.svg" alt="">
+        </div>
     </div>
 </body>
 
